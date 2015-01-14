@@ -99,18 +99,22 @@ na.tot</code></pre>
 intervals &lt;- unique(df$interval)
 averages &lt;- data.frame(cbind(average.by.interval, intervals))
 
-imputted.steps &lt;- function(steps, interval) {
-  imputted &lt;- NA
+imputed.steps &lt;- function(steps, interval) {
+  imputed &lt;- NA
   if (!is.na(steps))
-    imputted &lt;- c(steps)
+    imputed &lt;- c(steps)
   else
-    imputted &lt;- (averages[averages$intervals==interval, &quot;average.by.interval&quot;])
-  return(imputted)
+    imputed &lt;- (averages[averages$intervals==interval, &quot;average.by.interval&quot;])
+  return(imputed)
 }
+
+# Clone the original dataframe
 
 complete.df &lt;- df
 
-complete.df$steps &lt;- mapply(imputted.steps, complete.df$steps, complete.df$interval)
+# Replace NAs with average values
+
+complete.df$steps &lt;- mapply(imputed.steps, complete.df$steps, complete.df$interval)
 
 # Double-checking that there are no more NAs
 
@@ -120,7 +124,9 @@ na.tot</code></pre>
 </div>
 <div id="are-there-differences-in-activity-patterns-between-weekdays-and-weekends" class="section level2">
 <h2>Are there differences in activity patterns between weekdays and weekends?</h2>
-<pre class="r"><code>complete.df$day &lt;- ifelse(weekdays(as.Date(complete.df$date)) %in% c(&quot;samedi&quot;, &quot;dimanche&quot;), &quot;weekend&quot;,&quot;weekday&quot; )
+<pre class="r"><code># Weekdays vs Weekend (French getting in the way...)
+
+complete.df$day &lt;- ifelse(weekdays(as.Date(complete.df$date)) %in% c(&quot;samedi&quot;, &quot;dimanche&quot;), &quot;weekend&quot;,&quot;weekday&quot; )
 
 averages.steps &lt;- aggregate(complete.df$steps, by = list(complete.df$interval, complete.df$day), 
                        mean)

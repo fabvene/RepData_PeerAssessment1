@@ -44,18 +44,22 @@ average.by.interval <- (tapply(df$steps, df$interval, mean, na.rm = TRUE))
 intervals <- unique(df$interval)
 averages <- data.frame(cbind(average.by.interval, intervals))
 
-imputted.steps <- function(steps, interval) {
-  imputted <- NA
+imputed.steps <- function(steps, interval) {
+  imputed <- NA
   if (!is.na(steps))
-    imputted <- c(steps)
+    imputed <- c(steps)
   else
-    imputted <- (averages[averages$intervals==interval, "average.by.interval"])
-  return(imputted)
+    imputed <- (averages[averages$intervals==interval, "average.by.interval"])
+  return(imputed)
 }
+
+# Clone the original dataframe
 
 complete.df <- df
 
-complete.df$steps <- mapply(imputted.steps, complete.df$steps, complete.df$interval)
+# Replace NAs with average values
+
+complete.df$steps <- mapply(imputed.steps, complete.df$steps, complete.df$interval)
 
 # Double-checking that there are no more NAs
 
@@ -66,6 +70,9 @@ na.tot
 
 ## Are there differences in activity patterns between weekdays and weekends?
 ```{r}
+
+# Weekdays vs Weekend (French getting in the way...)
+
 complete.df$day <- ifelse(weekdays(as.Date(complete.df$date)) %in% c("samedi", "dimanche"), "weekend","weekday" )
 
 averages.steps <- aggregate(complete.df$steps, by = list(complete.df$interval, complete.df$day), 
